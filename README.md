@@ -1,3 +1,3 @@
 # seekr
 
-![seekr](./images/seekr.png)
+![seekr](./_images/seekr.png)
