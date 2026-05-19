@@ -1,8 +1,8 @@
-# seekr
+# SEEKR
 
 ![seekr](./_images/seekr.png)  
 
-# SEEKR
+## 🇺🇸 English
 
 SEEKR is a lightweight, ultra-fast, and elegant Terminal User Interface (TUI) written in Go with Bubble Tea to wrap the `find` command. It transforms complex shell search parameters into a modular, interactive, and bilingual dashboard  
 
@@ -47,7 +47,7 @@ Releases are available [here](https://github.com/Quirky1869/seekr/releases)
 
 ___  
 
-# SEEKR
+## 🇫🇷 Français
 
 SEEKR est une interface utilisateur de terminal (TUI) légère, ultra-rapide et élégante écrite en Go avec Bubble Tea pour encapsuler la commande `find`. Elle transforme les paramètres complexes de recherche shell en un tableau de bord modulaire, interactif et bilingue.  
 
