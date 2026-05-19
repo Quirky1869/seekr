@@ -5,18 +5,19 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+
 	"github.com/Quirky1869/seekr/internal/tui"
 )
 
 func main() {
+	m := tui.InitialModel()
 	p := tea.NewProgram(
-		tui.NewModel(),
-		tea.WithAltScreen(),
-		tea.WithMouseCellMotion(),
+		m,
+		tea.WithAltScreen(),       // full terminal, restores on exit
+		tea.WithMouseCellMotion(), // optional: mouse support
 	)
-
 	if _, err := p.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "seekr: fatal error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "seekr: %v\n", err)
 		os.Exit(1)
 	}
 }

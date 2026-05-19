@@ -2,247 +2,252 @@ package tui
 
 import "github.com/charmbracelet/lipgloss"
 
-// ── Cyberpunk 2077 palette ────────────────────────────────────────────────────
-// Primary neons
-var (
-	colorYellow  = lipgloss.Color("#FFE400") // Night City yellow
-	colorCyan    = lipgloss.Color("#00F5FF") // ICE blue
-	colorMagenta = lipgloss.Color("#FF003C") // Arasaka red-pink
-	colorGreen   = lipgloss.Color("#39FF14") // Netrunner green
-	colorOrange  = lipgloss.Color("#FF6B00") // Corpo orange
+// Cyberpunk 2077 palette
+const (
+	colorYellow  = "#FCE300" // Neon yellow — primary accent
+	colorCyan    = "#00F5FF" // Neon cyan — secondary
+	colorPink    = "#FF2079" // Neon pink — danger / delete
+	colorPurple  = "#BD00FF" // Deep purple — borders active
+	colorDark    = "#0D0D0F" // Near black background
+	colorDark2   = "#13131A" // Panel background
+	colorDark3   = "#1A1A28" // Slightly lighter panel
+	colorGray    = "#3A3A55" // Muted border / inactive
+	colorGrayMid = "#6060AA" // Mid gray text
+	colorWhite   = "#E8E8F0" // Text
+	colorGreen   = "#39FF14" // Neon green — success
+	colorOrange  = "#FF6B00" // Warning
 )
 
-// Backgrounds & neutrals
+// ─── Base ──────────────────────────────────────────────────────────────────
+
 var (
-	colorBg       = lipgloss.Color("#0D0D0F") // near-black
-	colorBgPanel  = lipgloss.Color("#111118") // panel bg
-	colorBgActive = lipgloss.Color("#1A1A2E") // focused panel
-	colorBorder   = lipgloss.Color("#2A2A4A") // dim border
-	colorDim      = lipgloss.Color("#3A3A5C") // dimmer text
-	colorMuted    = lipgloss.Color("#6C6C9A") // muted text
-	colorText     = lipgloss.Color("#C8C8E8") // body text
-	colorBright   = lipgloss.Color("#EEEEFF") // bright text
+	baseStyle = lipgloss.NewStyle().
+			Background(lipgloss.Color(colorDark))
+
+	// App container — full terminal window
+	appStyle = lipgloss.NewStyle().
+			Background(lipgloss.Color(colorDark))
 )
 
-// ── Base styles ───────────────────────────────────────────────────────────────
+// ─── Header ─────────────────────────────────────────────────────────────────
 
-var baseText = lipgloss.NewStyle().
-	Foreground(colorText).
-	Background(colorBg)
+var (
+	headerStyle = lipgloss.NewStyle().
+			Bold(true).
+			Foreground(lipgloss.Color(colorYellow)).
+			Background(lipgloss.Color(colorDark)).
+			PaddingLeft(1)
 
-// ── App chrome ────────────────────────────────────────────────────────────────
+	subtitleStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(colorCyan)).
+			Background(lipgloss.Color(colorDark)).
+			PaddingLeft(1)
 
-var styleAppTitle = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorYellow).
-	Background(colorBg).
-	Padding(0, 1)
+	langBadgeStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(colorDark)).
+			Background(lipgloss.Color(colorYellow)).
+			Bold(true).
+			PaddingLeft(1).
+			PaddingRight(1)
 
-var styleAppSubtitle = lipgloss.NewStyle().
-	Foreground(colorMuted).
-	Background(colorBg).
-	Italic(true)
+	headerSepStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(colorYellow)).
+			Background(lipgloss.Color(colorDark))
+)
 
-var styleLangBadge = lipgloss.NewStyle().
-	Foreground(colorCyan).
-	Background(colorBg).
-	Bold(true).
-	Padding(0, 1)
+// ─── Tabs ───────────────────────────────────────────────────────────────────
 
-// ── Tabs ──────────────────────────────────────────────────────────────────────
+var (
+	tabActiveStyle = lipgloss.NewStyle().
+			Bold(true).
+			Foreground(lipgloss.Color(colorDark)).
+			Background(lipgloss.Color(colorYellow)).
+			PaddingLeft(1).
+			PaddingRight(1)
 
-var styleTabActive = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorBg).
-	Background(colorYellow).
-	Padding(0, 1)
+	tabInactiveStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color(colorGrayMid)).
+				Background(lipgloss.Color(colorDark2)).
+				PaddingLeft(1).
+				PaddingRight(1)
 
-var styleTabInactive = lipgloss.NewStyle().
-	Foreground(colorMuted).
-	Background(colorBgPanel).
-	Padding(0, 1)
+	tabBarStyle = lipgloss.NewStyle().
+			Background(lipgloss.Color(colorDark2))
+)
 
-var styleTabBar = lipgloss.NewStyle().
-	Background(colorBgPanel).
-	BorderBottom(true).
-	BorderStyle(lipgloss.NormalBorder()).
-	BorderForeground(colorBorder)
+// ─── Panel / Box ────────────────────────────────────────────────────────────
 
-// ── Panels ────────────────────────────────────────────────────────────────────
+var (
+	panelStyle = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color(colorPurple)).
+			Background(lipgloss.Color(colorDark2)).
+			Padding(0, 1)
 
-var stylePanelFocused = lipgloss.NewStyle().
-	Border(lipgloss.RoundedBorder()).
-	BorderForeground(colorYellow).
-	Background(colorBgActive).
-	Padding(0, 1)
+	panelTitleStyle = lipgloss.NewStyle().
+			Bold(true).
+			Foreground(lipgloss.Color(colorYellow)).
+			Background(lipgloss.Color(colorDark2))
+)
 
-var stylePanelNormal = lipgloss.NewStyle().
-	Border(lipgloss.RoundedBorder()).
-	BorderForeground(colorBorder).
-	Background(colorBgPanel).
-	Padding(0, 1)
+// ─── Form fields ────────────────────────────────────────────────────────────
 
-// ── Form fields ───────────────────────────────────────────────────────────────
+var (
+	labelStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(colorCyan)).
+			Background(lipgloss.Color(colorDark2)).
+			Bold(true).
+			Width(20)
 
-var styleLabelFocused = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorYellow)
+	labelFocusStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(colorYellow)).
+			Background(lipgloss.Color(colorDark2)).
+			Bold(true).
+			Width(20)
 
-var styleLabelNormal = lipgloss.NewStyle().
-	Foreground(colorMuted)
+	inputActiveStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color(colorWhite)).
+				Background(lipgloss.Color(colorDark3)).
+				Border(lipgloss.NormalBorder()).
+				BorderForeground(lipgloss.Color(colorYellow))
 
-var styleInputFocused = lipgloss.NewStyle().
-	Foreground(colorCyan).
-	Background(colorBgActive).
-	Border(lipgloss.NormalBorder()).
-	BorderForeground(colorYellow).
-	Padding(0, 1)
+	inputInactiveStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color(colorGrayMid)).
+				Background(lipgloss.Color(colorDark3)).
+				Border(lipgloss.NormalBorder()).
+				BorderForeground(lipgloss.Color(colorGray))
 
-var styleInputNormal = lipgloss.NewStyle().
-	Foreground(colorText).
-	Background(colorBgPanel).
-	Border(lipgloss.NormalBorder()).
-	BorderForeground(colorBorder).
-	Padding(0, 1)
+	// Toggle ON/OFF
+	toggleOnStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(colorDark)).
+			Background(lipgloss.Color(colorGreen)).
+			Bold(true).
+			PaddingLeft(1).
+			PaddingRight(1)
 
-// Checkbox / toggle
-var styleCheckOn = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorGreen)
+	toggleOffStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(colorGrayMid)).
+			Background(lipgloss.Color(colorDark3)).
+			PaddingLeft(1).
+			PaddingRight(1)
 
-var styleCheckOff = lipgloss.NewStyle().
-	Foreground(colorDim)
+	// Select options
+	selectActiveStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color(colorDark)).
+				Background(lipgloss.Color(colorCyan)).
+				Bold(true).
+				PaddingLeft(1).
+				PaddingRight(1)
 
-// Selector (←→) highlight
-var styleSelectorActive = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorYellow).
-	Background(colorBgActive).
-	Padding(0, 1)
+	selectInactiveStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color(colorGrayMid)).
+				Background(lipgloss.Color(colorDark3)).
+				PaddingLeft(1).
+				PaddingRight(1)
 
-var styleSelectorInactive = lipgloss.NewStyle().
-	Foreground(colorMuted).
-	Padding(0, 1)
+	rowStyle = lipgloss.NewStyle().
+			Background(lipgloss.Color(colorDark2)).
+			PaddingTop(0).
+			PaddingBottom(0)
+)
 
-var styleSelectorArrow = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorMagenta)
+// ─── Results ────────────────────────────────────────────────────────────────
 
-// ── Results ───────────────────────────────────────────────────────────────────
+var (
+	cmdBoxStyle = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color(colorCyan)).
+			Background(lipgloss.Color(colorDark3)).
+			Foreground(lipgloss.Color(colorYellow)).
+			Bold(true).
+			Padding(0, 1)
 
-var styleResultsTitle = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorCyan)
+	resultItemStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(colorWhite)).
+			Background(lipgloss.Color(colorDark2))
 
-var styleResultItem = lipgloss.NewStyle().
-	Foreground(colorText)
+	resultItemSelectedStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color(colorDark)).
+				Background(lipgloss.Color(colorCyan)).
+				Bold(true)
 
-var styleResultItemSelected = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorYellow).
-	Background(colorBgActive)
+	resultCountStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color(colorGreen)).
+				Background(lipgloss.Color(colorDark2)).
+				Bold(true)
 
-var styleResultsEmpty = lipgloss.NewStyle().
-	Italic(true).
-	Foreground(colorDim)
+	statusRunningStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color(colorOrange)).
+				Background(lipgloss.Color(colorDark2)).
+				Bold(true)
 
-var styleResultsRunning = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorOrange)
+	statusEmptyStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color(colorGrayMid)).
+				Background(lipgloss.Color(colorDark2)).
+				Italic(true)
 
-var styleResultCount = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorGreen)
+	errorStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(colorPink)).
+			Background(lipgloss.Color(colorDark2)).
+			Bold(true)
+)
 
-var styleResultError = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorMagenta)
+// ─── Help bar ───────────────────────────────────────────────────────────────
 
-// ── Command preview ───────────────────────────────────────────────────────────
+var (
+	helpBarStyle = lipgloss.NewStyle().
+			Background(lipgloss.Color(colorDark2)).
+			Foreground(lipgloss.Color(colorGrayMid)).
+			PaddingLeft(1)
 
-var stylePreviewTitle = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorCyan)
+	helpKeyStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(colorYellow)).
+			Background(lipgloss.Color(colorDark2)).
+			Bold(true)
 
-var stylePreviewBox = lipgloss.NewStyle().
-	Foreground(colorGreen).
-	Background(colorBgPanel).
-	Border(lipgloss.NormalBorder()).
-	BorderForeground(colorBorder).
-	Padding(0, 1)
+	helpSepStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(colorGray)).
+			Background(lipgloss.Color(colorDark2))
+)
 
-var stylePreviewCopied = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorGreen)
+// ─── Buttons ────────────────────────────────────────────────────────────────
 
-// ── Buttons ───────────────────────────────────────────────────────────────────
+var (
+	btnRunStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(colorDark)).
+			Background(lipgloss.Color(colorYellow)).
+			Bold(true).
+			PaddingLeft(1).
+			PaddingRight(1)
 
-var styleBtnPrimary = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorBg).
-	Background(colorYellow).
-	Padding(0, 2).
-	MarginRight(1)
+	btnCopyStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(colorDark)).
+			Background(lipgloss.Color(colorCyan)).
+			Bold(true).
+			PaddingLeft(1).
+			PaddingRight(1)
 
-var styleBtnSecondary = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorCyan).
-	Background(colorBgPanel).
-	Border(lipgloss.NormalBorder()).
-	BorderForeground(colorCyan).
-	Padding(0, 2).
-	MarginRight(1)
+	btnClearStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(colorWhite)).
+			Background(lipgloss.Color(colorGray)).
+			PaddingLeft(1).
+			PaddingRight(1)
 
-var styleBtnDanger = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorBg).
-	Background(colorMagenta).
-	Padding(0, 2).
-	MarginRight(1)
+	btnDangerStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(colorWhite)).
+			Background(lipgloss.Color(colorPink)).
+			Bold(true).
+			PaddingLeft(1).
+			PaddingRight(1)
+)
 
-// ── Footer ────────────────────────────────────────────────────────────────────
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
-var styleFooter = lipgloss.NewStyle().
-	Foreground(colorMuted).
-	Background(colorBg).
-	BorderTop(true).
-	BorderStyle(lipgloss.NormalBorder()).
-	BorderForeground(colorBorder)
-
-var styleFooterKey = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorYellow)
-
-var styleFooterSep = lipgloss.NewStyle().
-	Foreground(colorBorder)
-
-// ── Section headers ───────────────────────────────────────────────────────────
-
-var styleSectionTitle = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorCyan).
-	MarginBottom(1)
-
-// ── Divider ───────────────────────────────────────────────────────────────────
-
-var styleDivider = lipgloss.NewStyle().
-	Foreground(colorBorder)
-
-// ── Help ──────────────────────────────────────────────────────────────────────
-
-var styleHelpTitle = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorYellow)
-
-var styleHelpKey = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorCyan).
-	Width(18)
-
-var styleHelpDesc = lipgloss.NewStyle().
-	Foreground(colorText)
-
-var styleHelpCategory = lipgloss.NewStyle().
-	Bold(true).
-	Foreground(colorMagenta).
-	MarginTop(1)
+// Repeat a string n times
+func repeat(s string, n int) string {
+	out := ""
+	for i := 0; i < n; i++ {
+		out += s
+	}
+	return out
+}

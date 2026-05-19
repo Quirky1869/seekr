@@ -1,6 +1,6 @@
 package i18n
 
-// Lang represents a language code.
+// Lang represents a supported language
 type Lang string
 
 const (
@@ -8,296 +8,205 @@ const (
 	FR Lang = "fr"
 )
 
-// T holds all translatable strings.
+// T holds all UI strings
 type T struct {
-	// Header / branding
+	// Header
+	AppTitle    string
 	AppSubtitle string
 
-	// Navigation tabs
-	TabSearch  string
-	TabOptions string
-	TabPreview string
-	TabHelp    string
+	// Tabs
+	TabBasic    string
+	TabFilters  string
+	TabAdvanced string
+	TabResults  string
 
-	// Search panel
-	LabelDirectory   string
-	LabelFilename    string
-	LabelFileType    string
-	LabelSize        string
-	LabelModified    string
-	LabelPermissions string
-	LabelDepth       string
-	LabelOwner       string
-	LabelGroup       string
-	LabelEmpty       string
-	LabelExecutable  string
-	LabelReadable    string
-	LabelWritable    string
-	LabelSymlinks    string
-	LabelCaseSensitive string
+	// Basic fields
+	LabelStartPath  string
+	LabelFileName   string
+	LabelFileType   string
+	LabelMaxDepth   string
+	PlaceholderPath string
+	PlaceholderName string
 
-	// File type options
-	FileTypeAny       string
-	FileTypeFile      string
-	FileTypeDir       string
-	FileTypeSymlink   string
-	FileTypeSocket    string
-	FileTypePipe      string
-	FileTypeBlock     string
-	FileTypeChar      string
+	// File types
+	TypeAny       string
+	TypeFile      string
+	TypeDirectory string
+	TypeSymlink   string
 
-	// Size units
-	SizeAny string
-	SizeB   string
-	SizeK   string
-	SizeM   string
-	SizeG   string
-	// Size comparators
-	SizeExact  string
-	SizeGt     string
-	SizeLt     string
+	// Filters
+	LabelMtime      string
+	LabelSize       string
+	LabelPerm       string
+	LabelOwner      string
+	LabelEmpty      string
+	LabelExecutable string
+	LabelReadable   string
+	LabelWritable   string
+	SizeUnit        string
 
-	// Time options
-	TimeAny       string
-	TimeToday     string
-	TimeYesterday string
-	TimeWeek      string
-	TimeMonth     string
-	TimeCustom    string
-	TimeModified  string
-	TimeAccessed  string
-	TimeChanged   string
+	// Advanced
+	LabelMinDepth   string
+	LabelFollowSym  string
+	LabelNoMount    string
+	LabelRegex      string
+	LabelExclude    string
+	LabelDeleteMode string
 
-	// Symlink options
-	SymlinkNever  string
-	SymlinkFollow string
-	SymlinkCLI    string
+	// Results
+	LabelResults     string
+	LabelCommand     string
+	LabelNoResults   string
+	LabelRunning     string
+	LabelCopied      string
+	LabelResultCount string
 
-	// Depth
-	DepthUnlimited string
-
-	// Results panel
-	ResultsTitle       string
-	ResultsEmpty       string
-	ResultsRunning     string
-	ResultsCount       string
-	ResultsError       string
-
-	// Command preview
-	PreviewTitle   string
-	PreviewCopied  string
-
-	// Actions
-	ActionRun    string
-	ActionCopy   string
-	ActionClear  string
-	ActionQuit   string
-	ActionExport string
-
-	// Help
-	HelpTitle      string
-	HelpKeys       string
-	HelpAbout      string
-
-	// Footer hints
-	HintRun    string
-	HintCopy   string
-	HintQuit   string
-	HintTab    string
-	HintLang   string
-	HintScroll string
-	HintSelect string
+	// Buttons / actions
+	BtnRun    string
+	BtnCopy   string
+	BtnClear  string
+	BtnQuit   string
 
 	// Errors
-	ErrNoDir     string
-	ErrFindExec  string
-	ErrCopyClip  string
+	ErrNoPath  string
+	ErrBadPath string
+
+	// Help bar
+	HelpRun      string
+	HelpCopy     string
+	HelpTab      string
+	HelpLang     string
+	HelpQuit     string
+	HelpNav      string
+	HelpConfirm  string
 }
 
 var translations = map[Lang]T{
 	EN: {
-		AppSubtitle: "[ FILE SEARCH INTERFACE // find wrapper ]",
+		AppTitle:    "SEEKR",
+		AppSubtitle: "// Interface for find v1.0 //",
 
-		TabSearch:  " SEARCH ",
-		TabOptions: " OPTIONS ",
-		TabPreview: " COMMAND ",
-		TabHelp:    " HELP ",
+		TabBasic:    "[F1] BASIC",
+		TabFilters:  "[F2] FILTERS",
+		TabAdvanced: "[F3] ADVANCED",
+		TabResults:  "[F4] RESULTS",
 
-		LabelDirectory:   "Directory",
-		LabelFilename:    "Filename pattern",
-		LabelFileType:    "File type",
-		LabelSize:        "Size",
-		LabelModified:    "Last modified",
-		LabelPermissions: "Permissions",
-		LabelDepth:       "Max depth",
-		LabelOwner:       "Owner",
-		LabelGroup:       "Group",
-		LabelEmpty:       "Empty files only",
-		LabelExecutable:  "Executable only",
-		LabelReadable:    "Readable only",
-		LabelWritable:    "Writable only",
-		LabelSymlinks:    "Symlink handling",
-		LabelCaseSensitive: "Case sensitive",
+		LabelStartPath:  "START PATH",
+		LabelFileName:   "FILE NAME",
+		LabelFileType:   "TYPE",
+		LabelMaxDepth:   "MAX DEPTH",
+		PlaceholderPath: "/home/user  (leave empty for .)",
+		PlaceholderName: "*.log  or  myfile.txt",
 
-		FileTypeAny:     "any",
-		FileTypeFile:    "file",
-		FileTypeDir:     "directory",
-		FileTypeSymlink: "symlink",
-		FileTypeSocket:  "socket",
-		FileTypePipe:    "pipe",
-		FileTypeBlock:   "block device",
-		FileTypeChar:    "char device",
+		TypeAny:       "ANY",
+		TypeFile:      "FILE (f)",
+		TypeDirectory: "DIR  (d)",
+		TypeSymlink:   "LINK (l)",
 
-		SizeAny:   "any",
-		SizeB:     "bytes",
-		SizeK:     "kilobytes",
-		SizeM:     "megabytes",
-		SizeG:     "gigabytes",
-		SizeExact: "exactly",
-		SizeGt:    "greater than",
-		SizeLt:    "less than",
+		LabelMtime:      "MODIFIED (days)",
+		LabelSize:       "SIZE",
+		LabelPerm:       "PERMISSIONS",
+		LabelOwner:      "OWNER",
+		LabelEmpty:      "EMPTY FILES ONLY",
+		LabelExecutable: "EXECUTABLE",
+		LabelReadable:   "READABLE",
+		LabelWritable:   "WRITABLE",
+		SizeUnit:        "unit: +5M  -1k  100c",
 
-		TimeAny:       "any time",
-		TimeToday:     "today",
-		TimeYesterday: "yesterday",
-		TimeWeek:      "last 7 days",
-		TimeMonth:     "last 30 days",
-		TimeCustom:    "custom (days)",
-		TimeModified:  "modified",
-		TimeAccessed:  "accessed",
-		TimeChanged:   "changed",
+		LabelMinDepth:   "MIN DEPTH",
+		LabelFollowSym:  "FOLLOW SYMLINKS (-L)",
+		LabelNoMount:    "NO MOUNT (-xdev)",
+		LabelRegex:      "REGEX PATTERN",
+		LabelExclude:    "EXCLUDE PATH",
+		LabelDeleteMode: "DELETE MATCHED (!)",
 
-		SymlinkNever:  "never follow",
-		SymlinkFollow: "always follow (-L)",
-		SymlinkCLI:    "CLI args only (-H)",
+		LabelResults:     "RESULTS",
+		LabelCommand:     "GENERATED COMMAND",
+		LabelNoResults:   "[ no results — run a search ]",
+		LabelRunning:     "[ scanning... ]",
+		LabelCopied:      "[ command copied to clipboard ]",
+		LabelResultCount: "results",
 
-		DepthUnlimited: "unlimited",
+		BtnRun:   "[ F5  RUN ]",
+		BtnCopy:  "[ F6  COPY CMD ]",
+		BtnClear: "[ F7  CLEAR ]",
+		BtnQuit:  "[ Q  QUIT ]",
 
-		ResultsTitle:   "// RESULTS",
-		ResultsEmpty:   "[ no results — adjust your filters ]",
-		ResultsRunning: "[ scanning... ]",
-		ResultsCount:   "results",
-		ResultsError:   "ERROR",
+		ErrNoPath:  "⚠  path is empty — using current directory",
+		ErrBadPath: "⚠  path does not exist",
 
-		PreviewTitle:  "// GENERATED COMMAND",
-		PreviewCopied: "[ copied to clipboard ]",
-
-		ActionRun:    "RUN",
-		ActionCopy:   "COPY",
-		ActionClear:  "CLEAR",
-		ActionQuit:   "QUIT",
-		ActionExport: "EXPORT",
-
-		HelpTitle: "// SEEKR — HELP",
-		HelpKeys:  "KEYBINDINGS",
-		HelpAbout: "ABOUT",
-
-		HintRun:    "F5/Enter: run",
-		HintCopy:   "Ctrl+C: copy cmd",
-		HintQuit:   "Ctrl+Q: quit",
-		HintTab:    "Tab: next field",
-		HintLang:   "Ctrl+L: lang",
-		HintScroll: "↑↓: scroll",
-		HintSelect: "←→: select",
-
-		ErrNoDir:    "Directory does not exist",
-		ErrFindExec: "Failed to execute find",
-		ErrCopyClip: "Failed to copy to clipboard",
+		HelpRun:     "F5 run",
+		HelpCopy:    "F6 copy command",
+		HelpTab:     "Tab/F1-F4 navigate",
+		HelpLang:    "Ctrl+L lang",
+		HelpQuit:    "q quit",
+		HelpNav:     "↑↓ scroll",
+		HelpConfirm: "Enter confirm",
 	},
-
 	FR: {
-		AppSubtitle: "[ INTERFACE DE RECHERCHE // find wrapper ]",
+		AppTitle:    "SEEKR",
+		AppSubtitle: "// Interface pour find v1.0 //",
 
-		TabSearch:  " RECHERCHE ",
-		TabOptions: " OPTIONS ",
-		TabPreview: " COMMANDE ",
-		TabHelp:    " AIDE ",
+		TabBasic:    "[F1] BASE",
+		TabFilters:  "[F2] FILTRES",
+		TabAdvanced: "[F3] AVANCÉ",
+		TabResults:  "[F4] RÉSULTATS",
 
-		LabelDirectory:   "Répertoire",
-		LabelFilename:    "Motif de nom",
-		LabelFileType:    "Type de fichier",
-		LabelSize:        "Taille",
-		LabelModified:    "Modifié le",
-		LabelPermissions: "Permissions",
-		LabelDepth:       "Profondeur max",
-		LabelOwner:       "Propriétaire",
-		LabelGroup:       "Groupe",
-		LabelEmpty:       "Fichiers vides uniquement",
-		LabelExecutable:  "Exécutables uniquement",
-		LabelReadable:    "Lisibles uniquement",
-		LabelWritable:    "Modifiables uniquement",
-		LabelSymlinks:    "Liens symboliques",
-		LabelCaseSensitive: "Casse sensible",
+		LabelStartPath:  "CHEMIN DE DÉPART",
+		LabelFileName:   "NOM DU FICHIER",
+		LabelFileType:   "TYPE",
+		LabelMaxDepth:   "PROFONDEUR MAX",
+		PlaceholderPath: "/home/user  (vide = .)",
+		PlaceholderName: "*.log  ou  monfichier.txt",
 
-		FileTypeAny:     "tous",
-		FileTypeFile:    "fichier",
-		FileTypeDir:     "répertoire",
-		FileTypeSymlink: "lien symbolique",
-		FileTypeSocket:  "socket",
-		FileTypePipe:    "pipe",
-		FileTypeBlock:   "périph. bloc",
-		FileTypeChar:    "périph. car.",
+		TypeAny:       "TOUT",
+		TypeFile:      "FICHIER (f)",
+		TypeDirectory: "DOSSIER (d)",
+		TypeSymlink:   "LIEN  (l)",
 
-		SizeAny:   "toute taille",
-		SizeB:     "octets",
-		SizeK:     "kilooctets",
-		SizeM:     "mégaoctets",
-		SizeG:     "gigaoctets",
-		SizeExact: "exactement",
-		SizeGt:    "supérieur à",
-		SizeLt:    "inférieur à",
+		LabelMtime:      "MODIFIÉ (jours)",
+		LabelSize:       "TAILLE",
+		LabelPerm:       "PERMISSIONS",
+		LabelOwner:      "PROPRIÉTAIRE",
+		LabelEmpty:      "FICHIERS VIDES SEULEMENT",
+		LabelExecutable: "EXÉCUTABLE",
+		LabelReadable:   "LISIBLE",
+		LabelWritable:   "MODIFIABLE",
+		SizeUnit:        "unité : +5M  -1k  100c",
 
-		TimeAny:       "à tout moment",
-		TimeToday:     "aujourd'hui",
-		TimeYesterday: "hier",
-		TimeWeek:      "7 derniers jours",
-		TimeMonth:     "30 derniers jours",
-		TimeCustom:    "personnalisé (jours)",
-		TimeModified:  "modifié",
-		TimeAccessed:  "accédé",
-		TimeChanged:   "changé",
+		LabelMinDepth:   "PROFONDEUR MIN",
+		LabelFollowSym:  "SUIVRE LIENS (-L)",
+		LabelNoMount:    "SANS MONTAGE (-xdev)",
+		LabelRegex:      "MOTIF REGEX",
+		LabelExclude:    "EXCLURE CHEMIN",
+		LabelDeleteMode: "SUPPRIMER RÉSULTATS (!)",
 
-		SymlinkNever:  "ne pas suivre",
-		SymlinkFollow: "toujours suivre (-L)",
-		SymlinkCLI:    "args CLI seulement (-H)",
+		LabelResults:     "RÉSULTATS",
+		LabelCommand:     "COMMANDE GÉNÉRÉE",
+		LabelNoResults:   "[ aucun résultat — lancez une recherche ]",
+		LabelRunning:     "[ analyse en cours... ]",
+		LabelCopied:      "[ commande copiée dans le presse-papier ]",
+		LabelResultCount: "résultats",
 
-		DepthUnlimited: "illimité",
+		BtnRun:   "[ F5  LANCER ]",
+		BtnCopy:  "[ F6  COPIER CMD ]",
+		BtnClear: "[ F7  EFFACER ]",
+		BtnQuit:  "[ Q  QUITTER ]",
 
-		ResultsTitle:   "// RÉSULTATS",
-		ResultsEmpty:   "[ aucun résultat — affinez vos filtres ]",
-		ResultsRunning: "[ analyse en cours... ]",
-		ResultsCount:   "résultats",
-		ResultsError:   "ERREUR",
+		ErrNoPath:  "⚠  chemin vide — utilisation du répertoire courant",
+		ErrBadPath: "⚠  chemin inexistant",
 
-		PreviewTitle:  "// COMMANDE GÉNÉRÉE",
-		PreviewCopied: "[ copié dans le presse-papiers ]",
-
-		ActionRun:    "LANCER",
-		ActionCopy:   "COPIER",
-		ActionClear:  "EFFACER",
-		ActionQuit:   "QUITTER",
-		ActionExport: "EXPORTER",
-
-		HelpTitle: "// SEEKR — AIDE",
-		HelpKeys:  "RACCOURCIS",
-		HelpAbout: "À PROPOS",
-
-		HintRun:    "F5/Entrée: lancer",
-		HintCopy:   "Ctrl+C: copier cmd",
-		HintQuit:   "Ctrl+Q: quitter",
-		HintTab:    "Tab: champ suivant",
-		HintLang:   "Ctrl+L: langue",
-		HintScroll: "↑↓: défiler",
-		HintSelect: "←→: sélectionner",
-
-		ErrNoDir:    "Le répertoire n'existe pas",
-		ErrFindExec: "Impossible d'exécuter find",
-		ErrCopyClip: "Impossible de copier",
+		HelpRun:     "F5 lancer",
+		HelpCopy:    "F6 copier commande",
+		HelpTab:     "Tab/F1-F4 naviguer",
+		HelpLang:    "Ctrl+L langue",
+		HelpQuit:    "q quitter",
+		HelpNav:     "↑↓ défiler",
+		HelpConfirm: "Entrée valider",
 	},
 }
 
-// Get returns the translation set for the given language.
-// Falls back to English if unknown.
+// Get returns the translation struct for the given language
 func Get(l Lang) T {
 	if t, ok := translations[l]; ok {
 		return t
@@ -305,20 +214,18 @@ func Get(l Lang) T {
 	return translations[EN]
 }
 
-// Toggle switches between EN and FR.
-func Toggle(l Lang) Lang {
-	if l == EN {
+// Toggle switches between EN and FR
+func Toggle(current Lang) Lang {
+	if current == EN {
 		return FR
 	}
 	return EN
 }
 
-// Flag returns a small flag emoji for the language.
+// Flag returns a small flag emoji for the language
 func Flag(l Lang) string {
-	switch l {
-	case FR:
-		return "🇫🇷"
-	default:
-		return "🇬🇧"
+	if l == FR {
+		return "🇫🇷 FR"
 	}
+	return "🇬🇧 EN"
 }
