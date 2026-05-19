@@ -84,12 +84,12 @@ type T struct {
 var translations = map[Lang]T{
 	EN: {
 		AppTitle:    "SEEKR",
-		AppSubtitle: "// find interface v1.0 //",
+		AppSubtitle: "// Interface for find v1.0 //",
 
-		TabBasic:    "[1] BASIC",
-		TabFilters:  "[2] FILTERS",
-		TabAdvanced: "[3] ADVANCED",
-		TabResults:  "[4] RESULTS",
+		TabBasic:    "[F1] BASIC",
+		TabFilters:  "[F2] FILTERS",
+		TabAdvanced: "[F3] ADVANCED",
+		TabResults:  "[F4] RESULTS",
 
 		LabelStartPath:  "START PATH",
 		LabelFileName:   "FILE NAME",
@@ -136,8 +136,8 @@ var translations = map[Lang]T{
 		ErrBadPath: "⚠  path does not exist",
 
 		HelpRun:     "F5 run",
-		HelpCopy:    "F6 copy",
-		HelpTab:     "Tab/1-4 navigate",
+		HelpCopy:    "F6 copy command",
+		HelpTab:     "Tab/F1-F4 navigate",
 		HelpLang:    "Ctrl+L lang",
 		HelpQuit:    "q quit",
 		HelpNav:     "↑↓ scroll",
@@ -145,12 +145,12 @@ var translations = map[Lang]T{
 	},
 	FR: {
 		AppTitle:    "SEEKR",
-		AppSubtitle: "// interface find v1.0 //",
+		AppSubtitle: "// Interface pour find v1.0 //",
 
-		TabBasic:    "[1] BASE",
-		TabFilters:  "[2] FILTRES",
-		TabAdvanced: "[3] AVANCÉ",
-		TabResults:  "[4] RÉSULTATS",
+		TabBasic:    "[F1] BASE",
+		TabFilters:  "[F2] FILTRES",
+		TabAdvanced: "[F3] AVANCÉ",
+		TabResults:  "[F4] RÉSULTATS",
 
 		LabelStartPath:  "CHEMIN DE DÉPART",
 		LabelFileName:   "NOM DU FICHIER",
@@ -197,8 +197,8 @@ var translations = map[Lang]T{
 		ErrBadPath: "⚠  chemin inexistant",
 
 		HelpRun:     "F5 lancer",
-		HelpCopy:    "F6 copier",
-		HelpTab:     "Tab/1-4 naviguer",
+		HelpCopy:    "F6 copier commande",
+		HelpTab:     "Tab/F1-F4 naviguer",
 		HelpLang:    "Ctrl+L langue",
 		HelpQuit:    "q quitter",
 		HelpNav:     "↑↓ défiler",

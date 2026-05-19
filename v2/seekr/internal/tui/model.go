@@ -215,8 +215,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.statusMsg = ""
 			m.resultVP.SetContent("")
 			return m, nil
-		case "1", "2", "3", "4":
-			t := int(k[0]-'0') - 1
+		case "f1", "f2", "f3", "f4":
+			t := int(k[1]-'1')
 			return m.switchTab(t), nil
 		case "tab":
 			return m.switchTab((m.tab + 1) % 4), nil

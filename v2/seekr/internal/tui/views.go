@@ -243,7 +243,7 @@ func (m Model) renderHelpBar() string {
 		{"F5", tr.HelpRun},
 		{"F6", tr.HelpCopy},
 		{"F7", tr.HelpQuit},
-		{"Tab/1-4", tr.HelpTab},
+		{"Tab/F1-F4", tr.HelpTab},
 		{"↑↓", tr.HelpNav},
 		{"Ctrl+L", tr.HelpLang},
 		{"q/Ctrl+C", tr.HelpQuit},
