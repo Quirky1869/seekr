@@ -152,6 +152,13 @@ func (m Model) renderFiltersTab() string {
 
 func (m Model) renderAdvancedTab() string {
 	tr := m.tr
+	var deleteLabel string
+	if m.focused == fDeleteMode {
+		deleteLabel = lipgloss.NewStyle().Foreground(lipgloss.Color(colorYellow)).Bold(true).Render(tr.LabelDeleteMode)
+	} else {
+		deleteLabel = dangerLabel(tr.LabelDeleteMode)
+	}
+
 	rows := []string{
 		m.renderInputRow(fMinDepth, tr.LabelMinDepth, m.inputs[fMinDepth].View()),
 		"",
@@ -161,8 +168,7 @@ func (m Model) renderAdvancedTab() string {
 		m.renderInputRow(fRegex, tr.LabelRegex, m.inputs[fRegex].View()),
 		m.renderInputRow(fExclude, tr.LabelExclude, m.inputs[fExclude].View()),
 		"",
-		m.renderToggleRow(fDeleteMode,
-			dangerLabel(tr.LabelDeleteMode)),
+		m.renderToggleRow(fDeleteMode, deleteLabel),
 	}
 	return m.wrapPanel(strings.Join(rows, "\n"))
 }
@@ -193,7 +199,6 @@ func (m Model) renderResultsTab() string {
 	if m.statusMsg != "" {
 		status = lipgloss.NewStyle().
 			Foreground(lipgloss.Color(colorGreen)).
-			Background(lipgloss.Color(colorDark2)).
 			Render("  " + m.statusMsg)
 	}
 
@@ -211,7 +216,6 @@ func (m Model) renderResultsTab() string {
 	parts = append(parts, vpStyled)
 
 	return lipgloss.NewStyle().
-		Background(lipgloss.Color(colorDark2)).
 		Padding(0, 1).
 		Render(strings.Join(parts, "\n"))
 }
@@ -228,7 +232,6 @@ func (m Model) renderCmdBar() string {
 	}
 	label := lipgloss.NewStyle().
 		Foreground(lipgloss.Color(colorCyan)).
-		Background(lipgloss.Color(colorDark2)).
 		Bold(true).
 		Render("$ ")
 	full := cmdBoxStyle.Width(m.width - 4).Render(label + cmd)
@@ -253,7 +256,6 @@ func (m Model) renderHelpBar() string {
 		k := helpKeyStyle.Render(it.key)
 		d := lipgloss.NewStyle().
 			Foreground(lipgloss.Color(colorGrayMid)).
-			Background(lipgloss.Color(colorDark2)).
 			Render(" " + it.desc)
 		sep := helpSepStyle.Render("  │  ")
 		parts = append(parts, k+d+sep)
@@ -289,16 +291,43 @@ func (m Model) renderSelectRow(fieldID int, label, content string) string {
 
 func (m Model) renderToggleRow(fieldID int, label string) string {
 	lStyle := labelStyle
-	if m.focused == fieldID {
+	isFocused := m.focused == fieldID
+
+	if isFocused && fieldID != fDeleteMode {
 		lStyle = labelFocusStyle
 	}
-	l := lStyle.Render(label)
+
+	var l string
+	if fieldID == fDeleteMode {
+		l = labelStyle.Width(20).Render(label)
+	} else {
+		l = lStyle.Render(label)
+	}
 
 	var tog string
 	if m.toggles[fieldID] {
-		tog = toggleOnStyle.Render(" ON ")
+		if isFocused {
+			tog = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("#000000")).
+				Background(lipgloss.Color(colorYellow)).
+				Bold(true).
+				Width(5).
+				Align(lipgloss.Center).
+				Render("ON")
+		} else {
+			tog = toggleOnStyle.Render("ON")
+		}
 	} else {
-		tog = toggleOffStyle.Render("OFF")
+		if isFocused {
+			tog = lipgloss.NewStyle().
+				Foreground(lipgloss.Color(colorYellow)).
+				Bold(true).
+				Width(5).
+				Align(lipgloss.Center).
+				Render("OFF")
+		} else {
+			tog = toggleOffStyle.Render("OFF")
+		}
 	}
 	row := lipgloss.JoinHorizontal(lipgloss.Top, l, "  ", tog)
 	return rowStyle.Render(row)
@@ -306,7 +335,6 @@ func (m Model) renderToggleRow(fieldID int, label string) string {
 
 func (m Model) wrapPanel(content string) string {
 	return lipgloss.NewStyle().
-		Background(lipgloss.Color(colorDark2)).
 		Padding(1, 2).
 		Width(m.width).
 		Render(content)
