@@ -1,2 +1,6 @@
 #!/bin/bash
 go build -o seekr . && ./seekr
+
+#git tag -a v1.0.0 -m "First stable version"
+#git push origin v1.0.0
+#GOPROXY=https://proxy.golang.org go list -m github.com/Quirky1869/seekr@v1.0.0

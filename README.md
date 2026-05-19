@@ -13,6 +13,10 @@ SEEKR is a lightweight, ultra-fast, and elegant Terminal User Interface (TUI) wr
 * **Bilingual Support:** Switch on the fly between English (EN) and French (FR) with a simple keyboard shortcut  
 * **Result Navigation:** Easily browse through long lists of files thanks to a dedicated Viewport  
 
+![basic](./_images/basic.png)
+
+![result](./_images/result.png)
+
 ## Keyboard Shortcuts
 
 * `F1` / `F2` / `F3` / `F4`: Direct tab switching
@@ -57,6 +61,10 @@ SEEKR est une interface utilisateur de terminal (TUI) légère, ultra-rapide et 
 * **Génération de Commande en Temps Réel :** Copiez instantanément la syntaxe exacte de la commande `find` générée.
 * **Support Bilingue :** Basculez à la volée entre l'anglais (EN) et le français (FR) d'un simple raccourci clavier.
 * **Navigation dans les Résultats :** Parcourez facilement les longues listes de fichiers grâce à un Viewport dédié.
+
+![basic-fr](./_images/basic-fr.png)
+
+![filter-fr](./_images/filter-fr.png)
 
 ## Raccourcis Clavier
 
