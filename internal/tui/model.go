@@ -197,6 +197,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.running = true
 			m.statusMsg = ""
 			m.errMsg = ""
+			m = m.switchTab(TabResults)
 			opts := m.buildOptions()
 			return m, func() tea.Msg {
 				res, err := finder.Run(opts)
