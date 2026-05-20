@@ -39,13 +39,13 @@ func (m Model) View() string {
 func (m Model) renderHeader() string {
 	w := m.width
 
-	title := headerStyle.Render("█▀ █▀▀ █▀▀ █▄▀ █▀█")
+	title1 := headerStyle.Render("█▀ █▀▀ █▀▀ █▄▀ █▀█")
 	title2 := headerStyle.Render("▄█ ██▄ ██▄ █░█ █▀▄")
 	subtitle := subtitleStyle.Render(m.tr.AppSubtitle)
 	lang := langBadgeStyle.Render(i18n.Flag(m.lang))
 
 	// Left: logo + subtitle  Right: lang badge
-	left := lipgloss.JoinVertical(lipgloss.Left, title, title2, subtitle)
+	left := lipgloss.JoinVertical(lipgloss.Left, title1, title2, subtitle)
 	right := lipgloss.NewStyle().Width(12).Align(lipgloss.Right).Render(lang)
 
 	spacer := w - lipgloss.Width(left) - lipgloss.Width(right)

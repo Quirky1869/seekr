@@ -255,6 +255,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.toggles[m.focused] = !m.toggles[m.focused]
 				return m, nil
 			}
+			case "left", "right":
+			if m.focused == fType {
+				if k == "right" {
+					m.fileTypeIdx = (m.fileTypeIdx + 1) % len(fileTypeValues)
+				} else {
+					m.fileTypeIdx = (m.fileTypeIdx - 1 + len(fileTypeValues)) % len(fileTypeValues)
+				}
+				return m, nil
+			}
 		}
 
 		// Text input forwarding
