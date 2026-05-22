@@ -46,20 +46,26 @@ type T struct {
 	SizeUnit        string
 
 	// Advanced
-	LabelMinDepth   string
-	LabelFollowSym  string
-	LabelNoMount    string
-	LabelRegex      string
-	LabelExclude    string
-	LabelDeleteMode string
+	LabelMinDepth          string
+	LabelFollowSym         string
+	LabelNoMount           string
+	LabelRegex             string
+	LabelExclude           string
+	LabelGrepMode          string
+	LabelGrepPattern       string
+	LabelGrepIgnoreCase    string
+	PlaceholderGrepPattern string
+	LabelDeleteMode        string
 
 	// Results
-	LabelResults     string
-	LabelCommand     string
-	LabelNoResults   string
-	LabelRunning     string
-	LabelCopied      string
-	LabelResultCount string
+	LabelResults        string
+	LabelCommand        string
+	LabelNoResults      string
+	LabelNoOccurrences  string
+	LabelRunning        string
+	LabelCopied         string
+	LabelResultCount    string
+	LabelOccurrenceCount string
 
 	// Buttons / actions
 	BtnRun    string
@@ -84,7 +90,7 @@ type T struct {
 var translations = map[Lang]T{
 	EN: {
 		AppTitle:    "SEEKR",
-		AppSubtitle: "// Interface for find v1.0 //",
+		AppSubtitle: "// Interface for find v1.1 //",
 
 		TabBasic:    "[F1] BASIC",
 		TabFilters:  "[F2] FILTERS",
@@ -113,19 +119,25 @@ var translations = map[Lang]T{
 		LabelWritable:   "WRITABLE",
 		SizeUnit:        "unit: +5M  -1k  100c",
 
-		LabelMinDepth:   "MIN DEPTH",
-		LabelFollowSym:  "FOLLOW SYMLINKS (-L)",
-		LabelNoMount:    "NO MOUNT (-xdev)",
-		LabelRegex:      "REGEX PATTERN",
-		LabelExclude:    "EXCLUDE PATH",
-		LabelDeleteMode: "DELETE MATCHED (!)",
+		LabelMinDepth:          "MIN DEPTH",
+		LabelFollowSym:         "FOLLOW SYMLINKS (-L)",
+		LabelNoMount:           "NO MOUNT (-xdev)",
+		LabelRegex:             "REGEX PATTERN",
+		LabelExclude:           "EXCLUDE PATH",
+		LabelGrepMode:          "GREP OPTION",
+		LabelGrepPattern:       "  ╰ GREP PATTERN",
+		LabelGrepIgnoreCase:    "  ╰ IGNORE CASE (-i)",
+		PlaceholderGrepPattern: "error  or  TODO",
+		LabelDeleteMode:        "DELETE MATCHED (!)",
 
-		LabelResults:     "RESULTS",
-		LabelCommand:     "GENERATED COMMAND",
-		LabelNoResults:   "[ no results — run a search ]",
-		LabelRunning:     "[ scanning... ]",
-		LabelCopied:      "[ command copied to clipboard ]",
-		LabelResultCount: "results",
+		LabelResults:         "RESULTS",
+		LabelCommand:         "GENERATED COMMAND",
+		LabelNoResults:       "[ no results — run a search ]",
+		LabelNoOccurrences:   "[ no occurrences found ]",
+		LabelRunning:         "[ scanning... ]",
+		LabelCopied:          "[ command copied to clipboard ]",
+		LabelResultCount:     "results",
+		LabelOccurrenceCount: "occurrences",
 
 		BtnRun:   "[ F5  RUN ]",
 		BtnCopy:  "[ F6  COPY CMD ]",
@@ -145,7 +157,7 @@ var translations = map[Lang]T{
 	},
 	FR: {
 		AppTitle:    "SEEKR",
-		AppSubtitle: "// Interface pour find v1.0 //",
+		AppSubtitle: "// Interface pour find v1.1 //",
 
 		TabBasic:    "[F1] BASE",
 		TabFilters:  "[F2] FILTRES",
@@ -174,19 +186,25 @@ var translations = map[Lang]T{
 		LabelWritable:   "MODIFIABLE",
 		SizeUnit:        "unité : +5M  -1k  100c",
 
-		LabelMinDepth:   "PROFONDEUR MIN",
-		LabelFollowSym:  "SUIVRE LIENS (-L)",
-		LabelNoMount:    "SANS MONTAGE (-xdev)",
-		LabelRegex:      "MOTIF REGEX",
-		LabelExclude:    "EXCLURE CHEMIN",
-		LabelDeleteMode: "SUPPRIMER RÉSULTATS (!)",
+		LabelMinDepth:          "PROFONDEUR MIN",
+		LabelFollowSym:         "SUIVRE LIENS (-L)",
+		LabelNoMount:           "SANS MONTAGE (-xdev)",
+		LabelRegex:             "MOTIF REGEX",
+		LabelExclude:           "EXCLURE CHEMIN",
+		LabelGrepMode:          "OPTION GREP",
+		LabelGrepPattern:       "  ╰ MOTIF GREP",
+		LabelGrepIgnoreCase:    "  ╰ IGNORER CASSE (-i)",
+		PlaceholderGrepPattern: "erreur  ou  TODO",
+		LabelDeleteMode:        "SUPPRIMER RÉSULTATS (!)",
 
-		LabelResults:     "RÉSULTATS",
-		LabelCommand:     "COMMANDE GÉNÉRÉE",
-		LabelNoResults:   "[ aucun résultat — lancez une recherche ]",
-		LabelRunning:     "[ analyse en cours... ]",
-		LabelCopied:      "[ commande copiée dans le presse-papier ]",
-		LabelResultCount: "résultats",
+		LabelResults:         "RÉSULTATS",
+		LabelCommand:         "COMMANDE GÉNÉRÉE",
+		LabelNoResults:       "[ aucun résultat — lancez une recherche ]",
+		LabelNoOccurrences:   "[ aucune occurrence trouvée ]",
+		LabelRunning:         "[ analyse en cours... ]",
+		LabelCopied:          "[ commande copiée dans le presse-papier ]",
+		LabelResultCount:     "résultats",
+		LabelOccurrenceCount: "occurrences",
 
 		BtnRun:   "[ F5  LANCER ]",
 		BtnCopy:  "[ F6  COPIER CMD ]",

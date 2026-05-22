@@ -1,9 +1,10 @@
 package tui
 
 import (
-	"os/exec"
 	"strings"
+	"time"
 
+	"github.com/atotto/clipboard"
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -43,12 +44,16 @@ const (
 	fRegex      = 15
 	fExclude    = 16
 	fDeleteMode = 17
+
+	fGrepMode       = 18
+	fGrepPattern    = 19
+	fGrepIgnoreCase = 20
 )
 
 var tabFields = map[int][]int{
 	TabBasic:    {fPath, fName, fType, fMaxDepth},
 	TabFilters:  {fMtime, fSize, fPerm, fOwner, fEmpty, fExecutable, fReadable, fWritable},
-	TabAdvanced: {fMinDepth, fFollowSym, fNoMount, fRegex, fExclude, fDeleteMode},
+	TabAdvanced: {fMinDepth, fFollowSym, fNoMount, fRegex, fExclude, fGrepMode, fDeleteMode},
 	TabResults:  {},
 }
 
@@ -56,6 +61,7 @@ var tabFields = map[int][]int{
 var nonTextFields = map[int]bool{
 	fType: true, fEmpty: true, fExecutable: true, fReadable: true,
 	fWritable: true, fFollowSym: true, fNoMount: true, fDeleteMode: true,
+	fGrepMode: true, fGrepIgnoreCase: true,
 }
 
 var fileTypeValues = []string{"", "f", "d", "l"}
@@ -63,11 +69,13 @@ var fileTypeValues = []string{"", "f", "d", "l"}
 // ─── Messages ────────────────────────────────────────────────────────────────
 
 type searchResultMsg struct {
-	results []string
-	err     error
+	results     []string
+	occurrences []string
+	err         error
 }
 
-type copiedMsg struct{}
+type copiedMsg struct{ err error }
+type clearStatusMsg struct{}
 
 // ─── Model ───────────────────────────────────────────────────────────────────
 
@@ -85,11 +93,13 @@ type Model struct {
 
 	fileTypeIdx int
 
-	results   []string
-	resultVP  viewport.Model
-	running   bool
-	errMsg    string
-	statusMsg string
+	results      []string
+	occurrences  []string
+	resultVP     viewport.Model
+	occurrenceVP viewport.Model
+	running      bool
+	errMsg       string
+	statusMsg    string
 }
 
 // ─── Constructor ─────────────────────────────────────────────────────────────
@@ -123,6 +133,7 @@ func InitialModel() Model {
 		{fMinDepth, "0", 6},
 		{fRegex, `.*\.go$`, 40},
 		{fExclude, "./.git", 40},
+		{fGrepPattern, tr.PlaceholderGrepPattern, 40},
 	}
 	for _, d := range defs {
 		ti := textinput.New()
@@ -134,6 +145,7 @@ func InitialModel() Model {
 
 	m = m.focusField(fPath)
 	m.resultVP = viewport.New(80, 10)
+	m.occurrenceVP = viewport.New(80, 10)
 	return m
 }
 
@@ -160,9 +172,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			m.inputs[id] = ti
 		}
-		vpH := clamp(m.height-13, 3, 200)
-		m.resultVP.Width = clamp(m.width-4, 20, 300)
-		m.resultVP.Height = vpH
+		m = m.resizeViewports()
 		return m, nil
 
 	case searchResultMsg:
@@ -170,15 +180,30 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.err != nil {
 			m.errMsg = msg.err.Error()
 			m.results = nil
+			m.occurrences = nil
 		} else {
 			m.errMsg = ""
 			m.results = msg.results
+			m.occurrences = msg.occurrences
 		}
 		m.resultVP.SetContent(strings.Join(m.results, "\n"))
+		m.occurrenceVP.SetContent(strings.Join(m.occurrences, "\n"))
 		m.tab = TabResults
 		return m, nil
 
 	case copiedMsg:
+		if msg.err != nil {
+			m.statusMsg = "⚠ " + msg.err.Error()
+		} else {
+			m.statusMsg = m.tr.LabelCopied
+		}
+		return m, func() tea.Msg {
+			time.Sleep(2 * time.Second)
+			return clearStatusMsg{}
+		}
+
+	case clearStatusMsg:
+		m.statusMsg = ""
 		return m, nil
 
 	case tea.KeyMsg:
@@ -201,20 +226,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			opts := m.buildOptions()
 			return m, func() tea.Msg {
 				res, err := finder.Run(opts)
-				return searchResultMsg{results: res, err: err}
+				return searchResultMsg{results: res.Files, occurrences: res.Occurrences, err: err}
 			}
 		case "f6":
-			m.statusMsg = m.tr.LabelCopied
 			s := m.buildCmdString()
 			return m, func() tea.Msg {
-				clipboardWrite(s)
-				return copiedMsg{}
+				return copiedMsg{err: clipboard.WriteAll(s)}
 			}
 		case "f7":
 			m.results = nil
+			m.occurrences = nil
 			m.errMsg = ""
 			m.statusMsg = ""
 			m.resultVP.SetContent("")
+			m.occurrenceVP.SetContent("")
 			return m, nil
 		case "f1", "f2", "f3", "f4":
 			t := int(k[1]-'1')
@@ -233,8 +258,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch k {
 			case "up", "k":
 				m.resultVP.LineUp(3)
+				m.occurrenceVP.LineUp(3)
 			case "down", "j":
 				m.resultVP.LineDown(3)
+				m.occurrenceVP.LineDown(3)
 			}
 			return m, nil
 		}
@@ -254,6 +281,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			if nonTextFields[m.focused] {
 				m.toggles[m.focused] = !m.toggles[m.focused]
+				if m.focused == fGrepMode {
+					m = m.resizeViewports()
+				}
 				return m, nil
 			}
 			case "left", "right":
@@ -280,15 +310,36 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.resultVP, vpCmd = m.resultVP.Update(msg)
 	cmds = append(cmds, vpCmd)
 
+	var occCmd tea.Cmd
+	m.occurrenceVP, occCmd = m.occurrenceVP.Update(msg)
+	cmds = append(cmds, occCmd)
+
 	return m, tea.Batch(cmds...)
 }
 
 // ─── Focus / tab helpers ─────────────────────────────────────────────────────
 
+// currentTabFields returns the navigable field list for the current tab,
+// dynamically inserting grep sub-fields when grep mode is active.
+func (m Model) currentTabFields() []int {
+	if m.tab == TabAdvanced && m.toggles[fGrepMode] {
+		base := tabFields[TabAdvanced]
+		result := make([]int, 0, len(base)+2)
+		for _, f := range base {
+			result = append(result, f)
+			if f == fGrepMode {
+				result = append(result, fGrepPattern, fGrepIgnoreCase)
+			}
+		}
+		return result
+	}
+	return tabFields[m.tab]
+}
+
 func (m Model) switchTab(t int) Model {
 	m = m.blurAll()
 	m.tab = t
-	fields := tabFields[t]
+	fields := m.currentTabFields()
 	if len(fields) > 0 {
 		m.focused = fields[0]
 		m = m.focusField(m.focused)
@@ -297,7 +348,7 @@ func (m Model) switchTab(t int) Model {
 }
 
 func (m Model) moveFocus(dir int) Model {
-	fields := tabFields[m.tab]
+	fields := m.currentTabFields()
 	if len(fields) == 0 {
 		return m
 	}
@@ -331,6 +382,22 @@ func (m Model) focusField(id int) Model {
 	return m
 }
 
+// resizeViewports sizes the result and occurrence viewports based on grep mode.
+func (m Model) resizeViewports() Model {
+	vpH := clamp(m.height-13, 3, 200)
+	if m.toggles[fGrepMode] {
+		halfW := clamp((m.width-10)/2, 10, 150)
+		m.resultVP.Width = halfW
+		m.occurrenceVP.Width = halfW
+	} else {
+		m.resultVP.Width = clamp(m.width-4, 20, 300)
+		m.occurrenceVP.Width = 0
+	}
+	m.resultVP.Height = vpH
+	m.occurrenceVP.Height = vpH
+	return m
+}
+
 // ─── Build / run ─────────────────────────────────────────────────────────────
 
 func (m Model) val(id int) string {
@@ -342,24 +409,27 @@ func (m Model) val(id int) string {
 
 func (m Model) buildOptions() finder.Options {
 	return finder.Options{
-		StartPath:  m.val(fPath),
-		FileName:   m.val(fName),
-		FileType:   fileTypeValues[m.fileTypeIdx],
-		MaxDepth:   m.val(fMaxDepth),
-		MinDepth:   m.val(fMinDepth),
-		Mtime:      m.val(fMtime),
-		Size:       m.val(fSize),
-		Perm:       m.val(fPerm),
-		Owner:      m.val(fOwner),
-		Empty:      m.toggles[fEmpty],
-		Executable: m.toggles[fExecutable],
-		Readable:   m.toggles[fReadable],
-		Writable:   m.toggles[fWritable],
-		FollowSym:  m.toggles[fFollowSym],
-		NoMount:    m.toggles[fNoMount],
-		Regex:      m.val(fRegex),
-		Exclude:    m.val(fExclude),
-		DeleteMode: m.toggles[fDeleteMode],
+		StartPath:      m.val(fPath),
+		FileName:       m.val(fName),
+		FileType:       fileTypeValues[m.fileTypeIdx],
+		MaxDepth:       m.val(fMaxDepth),
+		MinDepth:       m.val(fMinDepth),
+		Mtime:          m.val(fMtime),
+		Size:           m.val(fSize),
+		Perm:           m.val(fPerm),
+		Owner:          m.val(fOwner),
+		Empty:          m.toggles[fEmpty],
+		Executable:     m.toggles[fExecutable],
+		Readable:       m.toggles[fReadable],
+		Writable:       m.toggles[fWritable],
+		FollowSym:      m.toggles[fFollowSym],
+		NoMount:        m.toggles[fNoMount],
+		Regex:          m.val(fRegex),
+		Exclude:        m.val(fExclude),
+		GrepMode:       m.toggles[fGrepMode],
+		GrepPattern:    m.val(fGrepPattern),
+		GrepIgnoreCase: m.toggles[fGrepIgnoreCase],
+		DeleteMode:     m.toggles[fDeleteMode],
 	}
 }
 
@@ -378,21 +448,7 @@ func (m *Model) refreshPlaceholders() {
 	}
 	set(fPath, m.tr.PlaceholderPath)
 	set(fName, m.tr.PlaceholderName)
-}
-
-func clipboardWrite(s string) {
-	for _, c := range [][]string{
-		{"xclip", "-selection", "clipboard"},
-		{"xsel", "--clipboard", "--input"},
-		{"wl-copy"},
-		{"pbcopy"},
-	} {
-		cmd := exec.Command(c[0], c[1:]...)
-		cmd.Stdin = strings.NewReader(s)
-		if err := cmd.Run(); err == nil {
-			return
-		}
-	}
+	set(fGrepPattern, m.tr.PlaceholderGrepPattern)
 }
 
 func clamp(v, lo, hi int) int {

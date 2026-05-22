@@ -25,6 +25,9 @@ type Options struct {
 	NoMount     bool
 	Regex       string
 	Exclude     string
+	GrepMode       bool
+	GrepPattern    string
+	GrepIgnoreCase bool
 	DeleteMode  bool
 }
 
@@ -138,11 +141,25 @@ func CommandString(o Options) string {
 			quoted[i+1] = a
 		}
 	}
-	return strings.Join(quoted, " ")
+	result := strings.Join(quoted, " ")
+	if o.GrepMode && strings.TrimSpace(o.GrepPattern) != "" {
+		result += " | xargs grep -n"
+		if o.GrepIgnoreCase {
+			result += " -i"
+		}
+		result += fmt.Sprintf(" '%s'", strings.TrimSpace(o.GrepPattern))
+	}
+	return result
 }
 
-// Run executes find and returns the lines of output
-func Run(o Options) ([]string, error) {
+// RunResult holds the output of a search: matched files and grep occurrences.
+type RunResult struct {
+	Files       []string
+	Occurrences []string
+}
+
+// Run executes find (and optionally grep) and returns a RunResult.
+func Run(o Options) (RunResult, error) {
 	args := BuildCommand(o)
 	cmd := exec.Command("find", args...)
 	out, err := cmd.Output()
@@ -152,12 +169,53 @@ func Run(o Options) ([]string, error) {
 			lines := splitLines(string(out))
 			if len(lines) > 0 {
 				_ = exitErr
-				return lines, nil
+				return buildRunResult(lines, o), nil
 			}
 		}
-		return nil, err
+		return RunResult{}, err
 	}
-	return splitLines(string(out)), nil
+	return buildRunResult(splitLines(string(out)), o), nil
+}
+
+func buildRunResult(lines []string, o Options) RunResult {
+	pattern := strings.TrimSpace(o.GrepPattern)
+	if !o.GrepMode || pattern == "" {
+		return RunResult{Files: lines}
+	}
+	return RunResult{
+		Files:       filterWithGrep(lines, pattern, o.GrepIgnoreCase),
+		Occurrences: grepOccurrences(lines, pattern, o.GrepIgnoreCase),
+	}
+}
+
+func filterWithGrep(files []string, pattern string, ignoreCase bool) []string {
+	if len(files) == 0 {
+		return files
+	}
+	args := []string{"-l"}
+	if ignoreCase {
+		args = append(args, "-i")
+	}
+	args = append(args, pattern)
+	args = append(args, files...)
+	cmd := exec.Command("grep", args...)
+	out, _ := cmd.Output() // exit 1 = no match, not an error
+	return splitLines(string(out))
+}
+
+func grepOccurrences(files []string, pattern string, ignoreCase bool) []string {
+	if len(files) == 0 {
+		return nil
+	}
+	args := []string{"-n"}
+	if ignoreCase {
+		args = append(args, "-i")
+	}
+	args = append(args, pattern)
+	args = append(args, files...)
+	cmd := exec.Command("grep", args...)
+	out, _ := cmd.Output() // exit 1 = no match, not an error
+	return splitLines(string(out))
 }
 
 func splitLines(s string) []string {

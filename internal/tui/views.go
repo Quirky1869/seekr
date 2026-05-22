@@ -168,8 +168,18 @@ func (m Model) renderAdvancedTab() string {
 		m.renderInputRow(fRegex, tr.LabelRegex, m.inputs[fRegex].View()),
 		m.renderInputRow(fExclude, tr.LabelExclude, m.inputs[fExclude].View()),
 		"",
-		m.renderToggleRow(fDeleteMode, deleteLabel),
+		m.renderToggleRow(fGrepMode, tr.LabelGrepMode),
 	}
+
+	if m.toggles[fGrepMode] {
+		rows = append(rows,
+			m.renderSubInputRow(fGrepPattern, tr.LabelGrepPattern, m.inputs[fGrepPattern].View()),
+			m.renderSubToggleRow(fGrepIgnoreCase, tr.LabelGrepIgnoreCase),
+		)
+	}
+
+	rows = append(rows, "", m.renderToggleRow(fDeleteMode, deleteLabel))
+
 	return m.wrapPanel(strings.Join(rows, "\n"))
 }
 
@@ -181,8 +191,12 @@ func dangerLabel(s string) string {
 
 func (m Model) renderResultsTab() string {
 	tr := m.tr
-	var header string
 
+	if m.toggles[fGrepMode] {
+		return m.renderSplitResultsTab()
+	}
+
+	var header string
 	switch {
 	case m.running:
 		header = statusRunningStyle.Render(tr.LabelRunning)
@@ -195,13 +209,6 @@ func (m Model) renderResultsTab() string {
 		header = resultCountStyle.Render(count)
 	}
 
-	status := ""
-	if m.statusMsg != "" {
-		status = lipgloss.NewStyle().
-			Foreground(lipgloss.Color(colorGreen)).
-			Render("  " + m.statusMsg)
-	}
-
 	vp := m.resultVP.View()
 	vpStyled := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
@@ -209,23 +216,73 @@ func (m Model) renderResultsTab() string {
 		Width(m.width - 4).
 		Render(vp)
 
-	parts := []string{header}
-	if status != "" {
-		parts = append(parts, status)
-	}
-	parts = append(parts, vpStyled)
-
 	return lipgloss.NewStyle().
 		Padding(0, 1).
-		Render(strings.Join(parts, "\n"))
+		Render(strings.Join([]string{header, vpStyled}, "\n"))
+}
+
+func (m Model) renderSplitResultsTab() string {
+	tr := m.tr
+
+	// ── left header
+	var leftHeader string
+	switch {
+	case m.running:
+		leftHeader = statusRunningStyle.Render(tr.LabelRunning)
+	case m.errMsg != "":
+		leftHeader = errorStyle.Render("⚠  " + m.errMsg)
+	case len(m.results) == 0:
+		leftHeader = statusEmptyStyle.Render(tr.LabelNoResults)
+	default:
+		leftHeader = resultCountStyle.Render(fmt.Sprintf("  %d %s", len(m.results), tr.LabelResultCount))
+	}
+
+	// ── right header
+	var rightHeader string
+	switch {
+	case m.running:
+		rightHeader = statusRunningStyle.Render(tr.LabelRunning)
+	case len(m.occurrences) == 0:
+		rightHeader = statusEmptyStyle.Render(tr.LabelNoOccurrences)
+	default:
+		rightHeader = resultCountStyle.Render(fmt.Sprintf("  %d %s", len(m.occurrences), tr.LabelOccurrenceCount))
+	}
+
+	halfW := m.resultVP.Width
+
+	leftVP := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color(colorPurple)).
+		Width(halfW).
+		Render(m.resultVP.View())
+
+	rightVP := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color(colorPurple)).
+		Width(halfW).
+		Render(m.occurrenceVP.View())
+
+	leftPanel := lipgloss.JoinVertical(lipgloss.Left, leftHeader, leftVP)
+	rightPanel := lipgloss.JoinVertical(lipgloss.Left, rightHeader, rightVP)
+
+	split := lipgloss.JoinHorizontal(lipgloss.Top, leftPanel, "  ", rightPanel)
+
+	return lipgloss.NewStyle().Padding(0, 1).Render(split)
 }
 
 // ─── Command bar ─────────────────────────────────────────────────────────────
 
 func (m Model) renderCmdBar() string {
+	statusPart := ""
+	if m.statusMsg != "" {
+		statusPart = "  " + lipgloss.NewStyle().
+			Foreground(lipgloss.Color(colorGreen)).
+			Bold(true).
+			Render(m.statusMsg)
+	}
+
 	cmd := m.buildCmdString()
-	// truncate if needed
-	maxW := m.width - 6
+	maxW := m.width - 6 - lipgloss.Width(statusPart)
 	if lipgloss.Width(cmd) > maxW && maxW > 3 {
 		runes := []rune(cmd)
 		cmd = string(runes[:maxW-3]) + "..."
@@ -234,7 +291,7 @@ func (m Model) renderCmdBar() string {
 		Foreground(lipgloss.Color(colorCyan)).
 		Bold(true).
 		Render("$ ")
-	full := cmdBoxStyle.Width(m.width - 4).Render(label + cmd)
+	full := cmdBoxStyle.Width(m.width - 4).Render(label + cmd + statusPart)
 	return full
 }
 
@@ -325,6 +382,41 @@ func (m Model) renderToggleRow(fieldID int, label string) string {
 				Width(5).
 				Align(lipgloss.Center).
 				Render("OFF")
+		} else {
+			tog = toggleOffStyle.Render("OFF")
+		}
+	}
+	row := lipgloss.JoinHorizontal(lipgloss.Top, l, "  ", tog)
+	return rowStyle.Render(row)
+}
+
+func (m Model) renderSubInputRow(fieldID int, label, input string) string {
+	lStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(colorGrayMid)).Bold(true).Width(24)
+	if m.focused == fieldID {
+		lStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(colorCyan)).Bold(true).Width(24)
+	}
+	l := lStyle.Render(label)
+	row := lipgloss.JoinHorizontal(lipgloss.Top, l, "  ", input)
+	return rowStyle.Render(row)
+}
+
+func (m Model) renderSubToggleRow(fieldID int, label string) string {
+	isFocused := m.focused == fieldID
+	lStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(colorGrayMid)).Bold(true).Width(24)
+	if isFocused {
+		lStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(colorCyan)).Bold(true).Width(24)
+	}
+	l := lStyle.Render(label)
+	var tog string
+	if m.toggles[fieldID] {
+		if isFocused {
+			tog = lipgloss.NewStyle().Foreground(lipgloss.Color("#000000")).Background(lipgloss.Color(colorYellow)).Bold(true).Width(5).Align(lipgloss.Center).Render("ON")
+		} else {
+			tog = toggleOnStyle.Render("ON")
+		}
+	} else {
+		if isFocused {
+			tog = lipgloss.NewStyle().Foreground(lipgloss.Color(colorYellow)).Bold(true).Width(5).Align(lipgloss.Center).Render("OFF")
 		} else {
 			tog = toggleOffStyle.Render("OFF")
 		}
