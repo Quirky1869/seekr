@@ -47,7 +47,7 @@ SEEKR is a lightweight, ultra-fast, and elegant Terminal User Interface (TUI) wr
 
 Releases are available [here](https://github.com/Quirky1869/seekr/releases)  
 
-*Developed with ❤️ by [Quirky](https://github.com/Quirky1869)*  
+*Developed by [Quirky](https://github.com/Quirky1869)*  
 
 ___  
 
@@ -96,4 +96,4 @@ SEEKR est une interface utilisateur de terminal (TUI) légère, ultra-rapide et 
 
 Les [releases](https://github.com/Quirky1869/seekr/releases) sont disponibles [ici](https://github.com/Quirky1869/seekr/releases)  
 
-*Développé avec ❤️ par [Quirky](https://github.com/Quirky1869)*  
+*Développé par [Quirky](https://github.com/Quirky1869)*  
