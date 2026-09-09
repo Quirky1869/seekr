@@ -1,8 +1,11 @@
 package finder
 
 import (
+	"bytes"
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -31,6 +34,27 @@ type Options struct {
 	DeleteMode  bool
 }
 
+// expandPath resolves "~" and environment variables (e.g. $HOME, $USER) in a
+// path. find is run directly via exec.Command, not through a shell, so it
+// never sees this kind of shell expansion on its own.
+func expandPath(raw string) string {
+	path := strings.TrimSpace(raw)
+	if path == "" {
+		return path
+	}
+	path = os.ExpandEnv(path)
+	if path == "~" {
+		if home, err := os.UserHomeDir(); err == nil {
+			return home
+		}
+	} else if strings.HasPrefix(path, "~/") {
+		if home, err := os.UserHomeDir(); err == nil {
+			return filepath.Join(home, path[2:])
+		}
+	}
+	return path
+}
+
 // BuildCommand constructs the find command arguments from options
 func BuildCommand(o Options) []string {
 	args := []string{}
@@ -41,7 +65,7 @@ func BuildCommand(o Options) []string {
 	}
 
 	// Starting path
-	path := strings.TrimSpace(o.StartPath)
+	path := expandPath(o.StartPath)
 	if path == "" {
 		path = "."
 	}
@@ -156,21 +180,29 @@ func CommandString(o Options) string {
 type RunResult struct {
 	Files       []string
 	Occurrences []string
+	// Warning holds find's stderr when it exited non-zero on something
+	// non-fatal (e.g. an unreadable directory) but still completed the
+	// search. Empty when the run was clean.
+	Warning string
 }
 
 // Run executes find (and optionally grep) and returns a RunResult.
 func Run(o Options) (RunResult, error) {
 	args := BuildCommand(o)
 	cmd := exec.Command("find", args...)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
 	out, err := cmd.Output()
 	if err != nil {
-		// find exits non-zero on permission errors but may still have output
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			lines := splitLines(string(out))
-			if len(lines) > 0 {
-				_ = exitErr
-				return buildRunResult(lines, o), nil
-			}
+		// find exits non-zero whenever it can't read some directory (e.g.
+		// permission denied), even though it still searched everything it
+		// could and the results (if any) are valid. Treat that as a soft
+		// warning instead of a fatal error, and surface find's own message
+		// instead of the meaningless "exit status 1".
+		if _, ok := err.(*exec.ExitError); ok {
+			result := buildRunResult(splitLines(string(out)), o)
+			result.Warning = strings.TrimSpace(stderr.String())
+			return result, nil
 		}
 		return RunResult{}, err
 	}

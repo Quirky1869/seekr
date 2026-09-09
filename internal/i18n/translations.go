@@ -58,33 +58,34 @@ type T struct {
 	LabelDeleteMode        string
 
 	// Results
-	LabelResults        string
-	LabelCommand        string
-	LabelNoResults      string
-	LabelNoOccurrences  string
-	LabelRunning        string
-	LabelCopied         string
-	LabelResultCount    string
+	LabelResults         string
+	LabelCommand         string
+	LabelNoResults       string
+	LabelNoOccurrences   string
+	LabelRunning         string
+	LabelCopied          string
+	LabelResultCount     string
 	LabelOccurrenceCount string
 
 	// Buttons / actions
-	BtnRun    string
-	BtnCopy   string
-	BtnClear  string
-	BtnQuit   string
+	BtnRun   string
+	BtnCopy  string
+	BtnClear string
+	BtnQuit  string
 
 	// Errors
 	ErrNoPath  string
 	ErrBadPath string
 
 	// Help bar
-	HelpRun      string
-	HelpCopy     string
-	HelpTab      string
-	HelpLang     string
-	HelpQuit     string
-	HelpNav      string
-	HelpConfirm  string
+	HelpRun     string
+	HelpCopy    string
+	HelpClear   string
+	HelpTab     string
+	HelpLang    string
+	HelpQuit    string
+	HelpNav     string
+	HelpConfirm string
 }
 
 var translations = map[Lang]T{
@@ -149,6 +150,7 @@ var translations = map[Lang]T{
 
 		HelpRun:     "F5 run",
 		HelpCopy:    "F6 copy command",
+		HelpClear:   "F7 clear results",
 		HelpTab:     "Tab/F1-F4 navigate",
 		HelpLang:    "Ctrl+L lang",
 		HelpQuit:    "q quit",
@@ -216,6 +218,7 @@ var translations = map[Lang]T{
 
 		HelpRun:     "F5 lancer",
 		HelpCopy:    "F6 copier commande",
+		HelpClear:   "F7 effacer résultats",
 		HelpTab:     "Tab/F1-F4 naviguer",
 		HelpLang:    "Ctrl+L langue",
 		HelpQuit:    "q quitter",

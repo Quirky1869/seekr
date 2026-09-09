@@ -71,6 +71,7 @@ var fileTypeValues = []string{"", "f", "d", "l"}
 type searchResultMsg struct {
 	results     []string
 	occurrences []string
+	warning     string
 	err         error
 }
 
@@ -185,6 +186,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.errMsg = ""
 			m.results = msg.results
 			m.occurrences = msg.occurrences
+			if msg.warning != "" {
+				m.statusMsg = "⚠ " + msg.warning
+			}
 		}
 		m.resultVP.SetContent(strings.Join(m.results, "\n"))
 		m.occurrenceVP.SetContent(strings.Join(m.occurrences, "\n"))
@@ -226,7 +230,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			opts := m.buildOptions()
 			return m, func() tea.Msg {
 				res, err := finder.Run(opts)
-				return searchResultMsg{results: res.Files, occurrences: res.Occurrences, err: err}
+				return searchResultMsg{results: res.Files, occurrences: res.Occurrences, warning: res.Warning, err: err}
 			}
 		case "f6":
 			s := m.buildCmdString()
